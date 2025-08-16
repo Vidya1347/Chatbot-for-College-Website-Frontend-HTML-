@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RVITM College FAQ Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      background-color: #f4f4f9;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chatbot-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #4A90E2;
+      border-radius: 50%;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: #fff;
+      font-size: 30px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .chat-container {
+      display: none;
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 350px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      z-index: 10;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .chat-bubble {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    .user-message, .bot-message {
+      max-width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 5px 0;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: #4A90E2;
+      color: #fff;
+      text-align: right;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    .bot-message a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .bot-message a:hover {
+      text-decoration: underline;
+    }
+
+    .option-button {
+      display: inline-block;
+      background-color: #e0e0e0;
+      color: #333;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .option-button:hover {
+      background-color: #d0d0d0;
+    }
+
+    .exit-button {
+      display: inline-block;
+      background-color: #e0e0e0;
+      color: #333;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .exit-button:hover {
+      background-color: #d0d0d0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chatbot-icon" onclick="toggleChatbot()">💬</div>
+
+<div class="chat-container" id="chatContainer">
+  <h2 style="text-align: center; color: #333;">College FAQ Chatbot</h2>
+
+  <div id="chatLog" class="chat-bubble"></div>
+</div>
+
+<script>
+  const subQuestions = {
+    "about": {
+      "About RVITM Educational Institutions": "RV Educational Institutions: Committed to academic excellence since 1940! For more details, <a href='https://www.rvitm.edu.in/about/' target='_blank'>click here</a>.",
+      "About RVITM Vision and Mission": "Vision is to impart high-quality education and Mission is to nurture passionate engineers. Check our <a href='https://www.rvitm.edu.in/about/' target='_blank'>Vision and Mission page</a> for details.",
+      "Awards and Recognition": "Faculty Achievements, Technical talks, Best research paper Award, Funded projects, publications. Check more details in the following link, <a href='https://www.rvitm.edu.in/about/#1666863695785-1202cb5b-0bb4' target='_blank'>click here</a>.",
+      "Campus facilities": "Our serene campus, located in the heart of the city, is the perfect destination for students who are passionate about technical education. For more details, <a href='https://www.rvitm.edu.in/campus-life-facilities/' target='_blank'>click here</a>.",
+      "Events and Clubs and Committees": "There are many events and clubs to take part in. For more details, <a href='https://www.rvitm.edu.in/events/' target='_blank'>click here</a>."
+    },
+    "academics": {
+      "CSE": "Our Computer Science Engineering programme is a four-year intensive degree that focuses on the fundamentals of computer programming and networking. Visit the <a href='https://www.rvitm.edu.in/computer-science-engineering/' target='_blank'>CSE</a> for details.",
+      "ISE": "This programme is a four-year intensive degree that focuses on the fundamentals of computer programming and networking similar to Computer Science Engineering. Visit the <a href='https://www.rvitm.edu.in/information-science-engineering/' target='_blank'>ISE</a> for details.",
+      "ECE": "Equipped with state-of-the-art equipment and instruments, this program assists students in learning various concepts through practical experience. Visit the <a href='https://www.rvitm.edu.in/electronics-and-communication-engineering/' target='_blank'>ECE</a> for details.",
+      "Mechanical Engineering": "Our Mechanical Engineering programme is designed to give students a 360-degree understanding of design, construction, and the use of machines in automobiles, electric motors, aircraft, and more. Visit the <a href='https://www.rvitm.edu.in/mechanical-engineering/' target='_blank'>Mechanical Engineering</a> for details.",
+      "Master of Computer Applications": "A Master of Computer Applications is a two-year postgraduate degree that focuses on programming and application development. Learn more <a href='https://www.rvitm.edu.in/mca/' target='_blank'>MCA</a>."
+    },
+    "admission": {
+      "RVITM Brochure": "RVITM Brochure is given in the link. Learn more <a href='https://www.rvitm.edu.in/admission/' target='_blank'>RVITM Brochure</a>.",
+      "CET and COMEDK cutoff 2023-24 Admissions": "Cut off for 2023-24 admissions. Learn more <a href='https://www.rvitm.edu.in/admission/' target='_blank'>CET and COMEDK cutoff details</a>.",
+      "Management quota-admission processes and fee details for first year B.E 2024-25": "Fee details. Learn more <a href='https://www.rvitm.edu.in/admission/' target='_blank'>Management fee details</a>.",
+      "MCA cutoff 2024-25 Admissions": "MCA cutoff is. Learn more <a href='https://www.rvitm.edu.in/admission/' target='_blank'>MCA cutoff</a>.",
+      "MCA Admission processes and fee details 2024-25": "MCA fee details for 2024-25 admissions. Learn more <a href='https://www.rvitm.edu.in/admission/' target='_blank'>MCA fee details</a>."
+    },
+    "placements": {
+      "statistics": "Our placement cell has a record of successful placements in top companies. Check <a href='https://www.rvitm.edu.in/placements/' target='_blank'>placement statistics</a> for more info.",
+      "process": "The placement process involves multiple rounds including aptitude tests and interviews. For details, <a href='https://www.rvitm.edu.in/placements/' target='_blank'>click here</a>."
+    },
+    "contact us": {
+      "Contacts": "For all contacts, drop us your message below. Check <a href='https://www.rvitm.edu.in/contact/' target='_blank'>contacts</a> for more info.",
+      "Map Address": "The map address for RVITM is. For details, <a href='https://ic-rvitm.rvitm.edu.in/contact-us/' target='_blank'>click here</a>."
+    }
+  };
+
+  function toggleChatbot() {
+    const chatContainer = document.getElementById("chatContainer");
+    chatContainer.style.display = chatContainer.style.display === "none" || chatContainer.style.display === "" ? "block" : "none";
+  }
+
+  function startChat() {
+    addBotMessage("Please choose a main category to proceed:");
+    addOptions(["About", "Academics", "Admission", "Placements", "Contact us"], handleMainCategory);
+  }
+
+  function handleMainCategory(mainOption) {
+    addUserMessage(mainOption);
+    const mainKey = mainOption.toLowerCase();
+    addBotMessage("Please select a sub-question:");
+    addOptions(Object.keys(subQuestions[mainKey]), subKey => handleSubQuestion(mainKey, subKey));
+  }
+
+  function handleSubQuestion(mainKey, subKey) {
+    addUserMessage(subKey);
+    const answer = subQuestions[mainKey][subKey];
+    addBotMessage(answer);
+    addExitButton(); // Add Exit button after sub-question
+  }
+
+  function addUserMessage(message) {
+    const chatLog = document.getElementById("chatLog");
+    const userMessage = document.createElement("div");
+    userMessage.className = "user-message";
+    userMessage.innerText = message;
+    chatLog.appendChild(userMessage);
+  }
+
+  function addBotMessage(message) {
+    const chatLog = document.getElementById("chatLog");
+    const botMessage = document.createElement("div");
+    botMessage.className = "bot-message";
+    botMessage.innerHTML = message;
+    chatLog.appendChild(botMessage);
+  }
+
+  function addOptions(options, callback) {
+    const chatLog = document.getElementById("chatLog");
+    options.forEach(option => {
+      const button = document.createElement("div");
+      button.className = "option-button";
+      button.innerText = option;
+      button.onclick = () => callback(option);
+      chatLog.appendChild(button);
+    });
+  }
+
+  function addExitButton() {
+    const chatLog = document.getElementById("chatLog");
+    const exitButton = document.createElement("div");
+    exitButton.className = "option-button"; // Same style as other buttons
+    exitButton.innerText = "Exit Chat";
+    exitButton.onclick = () => closeChat();
+    chatLog.appendChild(exitButton);
+  }
+
+  function closeChat() {
+    const chatContainer = document.getElementById("chatContainer");
+    chatContainer.style.display = "none";
+  }
+
+  startChat();
+</script>
+
+</body>
+</html>
